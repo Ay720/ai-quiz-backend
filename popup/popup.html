@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Quiz Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="popup-card">
+    <!-- Header -->
+    <header class="card-header">
+      <div class="header-branding">
+        <span class="logo-emoji">🤖</span>
+        <div class="title-group">
+          <h1 class="main-title">AI Quiz Assistant</h1>
+          <span class="sub-title">Generic Portal Auto-Solver</span>
+        </div>
+      </div>
+      <div class="api-pill" id="apiPill" title="Backend Server Status">
+        <span class="api-dot" id="apiDot"></span>
+        <span id="apiStatusText">Checking API...</span>
+      </div>
+    </header>
+
+    <!-- Metrics Row -->
+    <section class="metrics-grid">
+      <div class="metric-box">
+        <span class="metric-label">Questions Found</span>
+        <span class="metric-value" id="questionsFound">0</span>
+      </div>
+      <div class="metric-box">
+        <span class="metric-label">Answered</span>
+        <span class="metric-value highlight" id="answeredCount">0</span>
+      </div>
+    </section>
+
+    <!-- Action Buttons -->
+    <section class="button-group">
+      <button class="btn btn-start" id="startBtn">
+        <span class="btn-icon">⚡</span> Start AI
+      </button>
+      <button class="btn btn-stop" id="stopBtn" disabled>
+        <span class="btn-icon">⏹️</span> Stop
+      </button>
+    </section>
+
+    <!-- Live Status Box -->
+    <div class="status-panel">
+      <div class="status-header">
+        <span class="status-title">Status:</span>
+        <span class="status-desc" id="statusText">Ready</span>
+      </div>
+      <!-- Error Box (shown if an error occurs) -->
+      <div class="error-box" id="errorBox" style="display: none;">
+        <span class="error-icon">⚠️</span>
+        <span class="error-msg" id="errorMsg">An error occurred</span>
+      </div>
+    </div>
+
+    <!-- Collapsible Settings -->
+    <div class="settings-drawer">
+      <div class="settings-toggle" id="settingsToggle">
+        <span>⚙️ Backend Configuration</span>
+        <span id="settingsArrow">▸</span>
+      </div>
+      <div class="settings-content" id="settingsContent" style="display: none;">
+        <label class="setting-label" for="backendUrlInput">Backend URL</label>
+        <div class="input-with-button">
+          <input type="text" id="backendUrlInput" value="http://localhost:3001" placeholder="http://localhost:3001" />
+          <button class="btn-sm" id="saveUrlBtn">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Safety Badge -->
+    <footer class="safety-footer">
+      <span>🛡️ Strictly never submits form</span>
+      <span>•</span>
+      <span>Works on all quiz portals</span>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
