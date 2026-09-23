@@ -5,7 +5,7 @@
 
 'use strict';
 
-const DEFAULT_BACKEND_URL = 'http://localhost:3001';
+const DEFAULT_BACKEND_URL = 'https://ai-quiz-backend-8tw9.onrender.com';
 
 // Session state cache
 const session = {

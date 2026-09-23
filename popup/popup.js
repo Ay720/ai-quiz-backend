@@ -24,11 +24,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   const backendUrlInput = document.getElementById('backendUrlInput');
   const saveUrlBtn = document.getElementById('saveUrlBtn');
 
+  const DEFAULT_BACKEND = 'https://ai-quiz-backend-8tw9.onrender.com';
+
   // Load configured backend URL
   chrome.storage.local.get(['backendUrl'], (res) => {
-    if (res.backendUrl) {
-      backendUrlInput.value = res.backendUrl;
-    }
+    backendUrlInput.value = res.backendUrl || DEFAULT_BACKEND;
     checkApiHealth(backendUrlInput.value);
   });
 
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Save backend URL
   saveUrlBtn.addEventListener('click', () => {
-    const url = backendUrlInput.value.trim() || 'http://localhost:3001';
+    const url = backendUrlInput.value.trim() || DEFAULT_BACKEND;
     chrome.storage.local.set({ backendUrl: url }, () => {
       checkApiHealth(url);
       showStatus('Backend URL updated.');
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       if (!tab || !tab.id) throw new Error('No active browser tab found.');
 
-      const backendUrl = backendUrlInput.value.trim() || 'http://localhost:3001';
+      const backendUrl = backendUrlInput.value.trim() || DEFAULT_BACKEND;
 
       chrome.tabs.sendMessage(
         tab.id,
