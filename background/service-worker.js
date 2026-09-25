@@ -75,10 +75,23 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   return true;
 });
 
+function cleanBackendUrl(rawUrl) {
+  if (!rawUrl) return DEFAULT_BACKEND_URL;
+  let clean = rawUrl.trim().replace(/\/+$/, '');
+  if (!clean.startsWith('http://') && !clean.startsWith('https://')) {
+    clean = 'https://' + clean;
+  }
+  if (clean.includes('localhost')) {
+    clean = DEFAULT_BACKEND_URL;
+  }
+  return clean;
+}
+
 /**
  * Checks backend health
  */
-async function checkBackendHealth(baseUrl) {
+async function checkBackendHealth(rawUrl) {
+  const baseUrl = cleanBackendUrl(rawUrl);
   try {
     const res = await fetch(`${baseUrl}/api/ai/health`, { method: 'GET' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -92,7 +105,8 @@ async function checkBackendHealth(baseUrl) {
 /**
  * Sends questions to backend AI endpoint
  */
-async function solveQuestions(baseUrl, questions) {
+async function solveQuestions(rawUrl, questions) {
+  const baseUrl = cleanBackendUrl(rawUrl);
   const endpoint = `${baseUrl}/api/ai/solve`;
   console.log(`[ServiceWorker] Processing ${questions.length} questions for ${endpoint}`);
 

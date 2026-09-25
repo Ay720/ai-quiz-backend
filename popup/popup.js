@@ -26,10 +26,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const DEFAULT_BACKEND = 'https://ai-quiz-backend-8tw9.onrender.com';
 
+  function normalizeUrl(url) {
+    if (!url) return DEFAULT_BACKEND;
+    let clean = url.trim().replace(/\/+$/, '');
+    if (!clean.startsWith('http://') && !clean.startsWith('https://')) {
+      clean = 'https://' + clean;
+    }
+    // If user has old localhost from previous session, migrate to live Render URL
+    if (clean.includes('localhost')) {
+      clean = DEFAULT_BACKEND;
+      chrome.storage.local.set({ backendUrl: DEFAULT_BACKEND });
+    }
+    return clean;
+  }
+
   // Load configured backend URL
   chrome.storage.local.get(['backendUrl'], (res) => {
-    backendUrlInput.value = res.backendUrl || DEFAULT_BACKEND;
-    checkApiHealth(backendUrlInput.value);
+    const activeUrl = normalizeUrl(res.backendUrl);
+    backendUrlInput.value = activeUrl;
+    checkApiHealth(activeUrl);
   });
 
   // Settings accordion toggle
@@ -41,7 +56,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Save backend URL
   saveUrlBtn.addEventListener('click', () => {
-    const url = backendUrlInput.value.trim() || DEFAULT_BACKEND;
+    const url = normalizeUrl(backendUrlInput.value);
+    backendUrlInput.value = url;
     chrome.storage.local.set({ backendUrl: url }, () => {
       checkApiHealth(url);
       showStatus('Backend URL updated.');
@@ -50,10 +66,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Check API health via background service worker
   function checkApiHealth(url) {
+    const clean = normalizeUrl(url);
     apiDot.className = 'api-dot';
     apiStatusText.textContent = 'Checking...';
 
-    chrome.runtime.sendMessage({ type: 'CHECK_BACKEND', backendUrl: url }, (res) => {
+    chrome.runtime.sendMessage({ type: 'CHECK_BACKEND', backendUrl: clean }, (res) => {
       if (res && res.online) {
         apiDot.className = 'api-dot online';
         apiStatusText.textContent = `Online (${res.provider})`;

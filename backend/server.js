@@ -11,14 +11,20 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Global Middleware
+app.use((req, res, next) => {
+  // Normalize repeated slashes (e.g. //api/ai/health -> /api/ai/health)
+  req.url = req.url.replace(/\/{2,}/g, '/');
+  next();
+});
+
 app.use(cors({
   origin: '*', // Allow extension popups, content scripts, and web portals
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '20mb' }));
+app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
 // Request Logging
 app.use((req, res, next) => {
