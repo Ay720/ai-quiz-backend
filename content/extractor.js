@@ -63,7 +63,16 @@
         'fieldset'
       ];
 
-      const cards = Array.from(document.querySelectorAll(cardSelectors.join(', ')));
+      const rawCards = Array.from(document.querySelectorAll(cardSelectors.join(', ')));
+
+      // Deduplicate: Keep only top-level question cards (prevents .Qr7Oae and .geSAlb from duplicating)
+      const cards = [];
+      rawCards.forEach((card) => {
+        const isChild = rawCards.some((other) => other !== card && other.contains(card));
+        if (!isChild && !cards.includes(card)) {
+          cards.push(card);
+        }
+      });
 
       cards.forEach((card) => {
         // 1. Check for Multiple Choice / Radiogroup / Checkbox options inside card

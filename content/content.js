@@ -8,9 +8,16 @@
 (function () {
   'use strict';
 
+  // Ignore tiny/hidden helper iframes (Google Docs fonts, analytics sandboxes)
+  if (window.self !== window.top) {
+    if (window.innerWidth < 100 || window.innerHeight < 100) return;
+  }
+
   // Prevent multiple injections
   if (window.__AI_QUIZ_ASSISTANT_CONTENT_LOADED__) return;
   window.__AI_QUIZ_ASSISTANT_CONTENT_LOADED__ = true;
+
+  console.log('[AI Quiz Assistant] Content script ready on:', window.location.hostname);
 
   const state = {
     isRunning: false,
@@ -30,6 +37,7 @@
     state.answeredCount = 0;
     state.lastError = null;
 
+    console.log('[AI Quiz Assistant] Starting solving workflow...');
     updateProgress('Scanning page for questions...');
 
     try {
@@ -39,6 +47,10 @@
       state.questionsFound = questions.length;
 
       if (questions.length === 0) {
+        if (window.self !== window.top) {
+          state.isRunning = false;
+          return;
+        }
         throw new Error('No quiz questions detected on this page. Ensure questions and options are visible.');
       }
 
