@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Practice Exam — Sample Quiz Page</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 30px 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .quiz-container {
+      width: 100%;
+      max-width: 680px;
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+    h1 {
+      font-size: 22px;
+      margin-bottom: 8px;
+      color: #1e293b;
+    }
+    p.desc {
+      font-size: 14px;
+      color: #64748b;
+      margin-bottom: 24px;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 14px;
+    }
+    .question-block {
+      margin-bottom: 26px;
+      padding: 18px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+    }
+    .question-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #334155;
+    }
+    .option-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .option-row:hover {
+      background: #e2e8f0;
+    }
+    input[type="radio"] {
+      cursor: pointer;
+    }
+    .submit-btn {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <h1>Practice Quiz Test Page</h1>
+    <p class="desc">Open this page and click the <strong>AI Quiz Assistant</strong> extension icon, then click <strong>Start AI</strong>.</p>
+
+    <!-- Question 1 -->
+    <div class="question-block">
+      <div class="question-title">1. Which is not a property of knowledge representation?</div>
+      <label class="option-row">
+        <input type="radio" name="q1" value="A">
+        <span>Representational Verification</span>
+      </label>
+      <label class="option-row">
+        <input type="radio" name="q1" value="B">
+        <span>Representational Adequacy</span>
+      </label>
+      <label class="option-row">
+        <input type="radio" name="q1" value="C">
+        <span>Inferential Adequacy</span>
+      </label>
+      <label class="option-row">
+        <input type="radio" name="q1" value="D">
+        <span>Inferential Efficiency</span>
+      </label>
+    </div>
+
+    <!-- Question 2 -->
+    <div class="question-block">
+      <div class="question-title">2. What is the time complexity of binary search on a sorted array of size n?</div>
+      <label class="option-row">
+        <input type="radio" name="q2" value="A">
+        <span>O(n)</span>
+      </label>
+      <label class="option-row">
+        <input type="radio" name="q2" value="B">
+        <span>O(log n)</span>
+      </label>
+      <label class="option-row">
+        <input type="radio" name="q2" value="C">
+        <span>O(n^2)</span>
+      </label>
+      <label class="option-row">
+        <input type="radio" name="q2" value="D">
+        <span>O(1)</span>
+      </label>
+    </div>
+
+    <!-- Question 3 -->
+    <div class="question-block">
+      <div class="question-title">3. Which data structure operates strictly on the First-In, First-Out (FIFO) principle?</div>
+      <label class="option-row">
+        <input type="radio" name="q3" value="A">
+        <span>Stack</span>
+      </label>
+      <label class="option-row">
+        <input type="radio" name="q3" value="B">
+        <span>Queue</span>
+      </label>
+      <label class="option-row">
+        <input type="radio" name="q3" value="C">
+        <span>Binary Search Tree</span>
+      </label>
+      <label class="option-row">
+        <input type="radio" name="q3" value="D">
+        <span>Hash Table</span>
+      </label>
+    </div>
+
+    <!-- Question 4: Written Short Answer Question -->
+    <div class="question-block">
+      <div class="question-title">4. What is the standard boiling point of pure water in Celsius? (Write your answer below)</div>
+      <div style="margin-top: 10px;">
+        <input type="text" placeholder="Type your answer here..." style="width: 100%; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box;" />
+      </div>
+    </div>
+
+    <!-- Question 5: Written Paragraph / Descriptive Question -->
+    <div class="question-block">
+      <div class="question-title">5. In 1-2 sentences, define what an Operating System does.</div>
+      <div style="margin-top: 10px;">
+        <textarea rows="3" placeholder="Write your paragraph answer here..." style="width: 100%; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box; resize: vertical;"></textarea>
+      </div>
+    </div>
+
+    <!-- Question 6: Image-based Question -->
+    <div class="question-block">
+      <div class="question-title">6. Look at the diagram/graphic below. What color is prominently shown in the box?</div>
+      <div style="margin: 12px 0;">
+        <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='100' style='background:%232563eb;border-radius:8px;'><text x='20' y='55' fill='white' font-family='sans-serif' font-size='16' font-weight='bold'>Blue Box</text></svg>" alt="A blue colored rectangular box with text Blue Box" style="border-radius: 8px; border: 1px solid #94a3b8;" />
+      </div>
+      <label class="option-row">
+        <input type="radio" name="q6" value="A">
+        <span>Red</span>
+      </label>
+      <label class="option-row">
+        <input type="radio" name="q6" value="B">
+        <span>Blue</span>
+      </label>
+      <label class="option-row">
+        <input type="radio" name="q6" value="C">
+        <span>Green</span>
+      </label>
+      <label class="option-row">
+        <input type="radio" name="q6" value="D">
+        <span>Yellow</span>
+      </label>
+    </div>
+
+    <button type="submit" class="submit-btn">Submit Quiz</button>
+  </div>
+</body>
+</html>
