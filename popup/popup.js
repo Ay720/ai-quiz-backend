@@ -64,11 +64,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  // Check API health via background service worker
-  function checkApiHealth(url) {
+  // Check API health directly and via service worker
+  async function checkApiHealth(url) {
     const clean = normalizeUrl(url);
     apiDot.className = 'api-dot';
     apiStatusText.textContent = 'Checking...';
+
+    try {
+      const resp = await fetch(`${clean}/api/ai/health`, { method: 'GET' });
+      if (resp.ok) {
+        const data = await resp.json();
+        apiDot.className = 'api-dot online';
+        apiStatusText.textContent = `Online (${data.provider || 'Ready'})`;
+        return;
+      }
+    } catch (e) {
+      // Direct fetch failed, check via background relay
+    }
 
     chrome.runtime.sendMessage({ type: 'CHECK_BACKEND', backendUrl: clean }, (res) => {
       if (res && res.online) {

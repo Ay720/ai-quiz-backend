@@ -161,19 +161,18 @@ async function ensureImageBase64(questions) {
   }
 }
 
-function blobToBase64(blob) {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const res = reader.result;
-      if (typeof res === 'string') {
-        const pure = res.replace(/^data:[^;]+;base64,/, '');
-        resolve(pure);
-      } else {
-        resolve(null);
-      }
-    };
-    reader.onerror = () => resolve(null);
-    reader.readAsDataURL(blob);
-  });
+async function blobToBase64(blob) {
+  try {
+    const buffer = await blob.arrayBuffer();
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    const chunk = 8192;
+    for (let i = 0; i < bytes.length; i += chunk) {
+      binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+    }
+    return btoa(binary);
+  } catch (e) {
+    console.warn('[ServiceWorker] blobToBase64 error:', e);
+    return null;
+  }
 }
