@@ -44,11 +44,17 @@
 
       updateProgress(`Found ${questions.length} questions. Querying AI model...`);
 
-      // Step 2: Format payload for backend API
+      // Step 2: Format payload for backend API (including images and question types)
       const payloadQuestions = questions.map(q => ({
         id: q.id,
+        type: q.type || (q.options?.length ? 'choice' : 'text'),
         question: q.question,
-        options: q.options.map(o => o.text)
+        options: (q.options || []).map(o => o.text),
+        images: (q.images || []).map(img => ({
+          url: img.url,
+          data: img.data,
+          alt: img.alt
+        }))
       }));
 
       // Step 3: Request answers via background service worker
@@ -63,9 +69,9 @@
       }
 
       const answers = response.results;
-      updateProgress(`Received ${answers.length} answers. Selecting options...`);
+      updateProgress(`Received ${answers.length} answers. Filling responses...`);
 
-      // Step 4: Iterate and select matched options on the webpage
+      // Step 4: Iterate and fill text or select matched options on the webpage
       for (let i = 0; i < answers.length; i++) {
         if (!state.isRunning) {
           updateProgress('Stopped by user.');
@@ -75,26 +81,37 @@
         const ansObj = answers[i];
         const questionItem = questions.find(q => q.id === ansObj.id);
 
-        if (questionItem && questionItem.options.length > 0) {
-          updateProgress(`Answering question ${i + 1} of ${answers.length}...`);
-
-          // Match AI answer to DOM option
-          const matched = window.AIOptionMatcher.findMatch(ansObj.answer, questionItem.options);
-
-          if (matched) {
-            const selectRes = window.AIOptionSelector.select(matched);
-            if (selectRes.success) {
+        if (questionItem) {
+          if (questionItem.type === 'text') {
+            // WRITTEN / TEXT INPUT QUESTION
+            updateProgress(`Writing answer for question ${i + 1} of ${answers.length}...`);
+            const writeRes = window.AIOptionSelector.fillTextInput(questionItem, ansObj.answer);
+            if (writeRes.success) {
               state.answeredCount++;
-              console.log(`[AI Quiz] Selected: "${matched.text}" for question "${questionItem.question.substring(0, 40)}..."`);
+              console.log(`[AI Quiz] Filled written answer for question ${questionItem.id}: "${ansObj.answer}"`);
             } else {
-              console.warn(`[AI Quiz] Selection failed for question ${questionItem.id}:`, selectRes.error);
+              console.warn(`[AI Quiz] Writing failed for question ${questionItem.id}:`, writeRes.error);
             }
-          } else {
-            console.warn(`[AI Quiz] Could not match AI answer "${ansObj.answer}" with options for question ${questionItem.id}`);
+          } else if (questionItem.options && questionItem.options.length > 0) {
+            // MULTIPLE CHOICE QUESTION
+            updateProgress(`Selecting option for question ${i + 1} of ${answers.length}...`);
+            const matched = window.AIOptionMatcher.findMatch(ansObj.answer, questionItem.options);
+
+            if (matched) {
+              const selectRes = window.AIOptionSelector.select(matched);
+              if (selectRes.success) {
+                state.answeredCount++;
+                console.log(`[AI Quiz] Selected: "${matched.text}" for question "${questionItem.question.substring(0, 40)}..."`);
+              } else {
+                console.warn(`[AI Quiz] Selection failed for question ${questionItem.id}:`, selectRes.error);
+              }
+            } else {
+              console.warn(`[AI Quiz] Could not match AI answer "${ansObj.answer}" with options for question ${questionItem.id}`);
+            }
           }
         }
 
-        // Brief human-like pause between selections (600ms)
+        // Brief human-like pause between actions (600ms)
         await sleep(600);
       }
 

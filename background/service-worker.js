@@ -94,7 +94,10 @@ async function checkBackendHealth(baseUrl) {
  */
 async function solveQuestions(baseUrl, questions) {
   const endpoint = `${baseUrl}/api/ai/solve`;
-  console.log(`[ServiceWorker] Sending ${questions.length} questions to ${endpoint}`);
+  console.log(`[ServiceWorker] Processing ${questions.length} questions for ${endpoint}`);
+
+  // Ensure any image URLs are converted to base64 (bypasses page CORS restrictions)
+  await ensureImageBase64(questions);
 
   const res = await fetch(endpoint, {
     method: 'POST',
@@ -114,4 +117,49 @@ async function solveQuestions(baseUrl, questions) {
   }
 
   return await res.json();
+}
+
+/**
+ * Converts image URLs to base64 using background service worker network permissions
+ */
+async function ensureImageBase64(questions) {
+  for (const q of questions) {
+    if (q.images && Array.isArray(q.images)) {
+      for (const img of q.images) {
+        if (!img.data && img.url && (img.url.startsWith('http://') || img.url.startsWith('https://'))) {
+          try {
+            console.log(`[ServiceWorker] Fetching image from: ${img.url.substring(0, 80)}...`);
+            const resp = await fetch(img.url);
+            if (resp.ok) {
+              const blob = await resp.blob();
+              const base64 = await blobToBase64(blob);
+              if (base64) {
+                img.data = base64;
+                img.mimeType = blob.type || 'image/jpeg';
+              }
+            }
+          } catch (e) {
+            console.warn('[ServiceWorker] Image fetch error:', e.message);
+          }
+        }
+      }
+    }
+  }
+}
+
+function blobToBase64(blob) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const res = reader.result;
+      if (typeof res === 'string') {
+        const pure = res.replace(/^data:[^;]+;base64,/, '');
+        resolve(pure);
+      } else {
+        resolve(null);
+      }
+    };
+    reader.onerror = () => resolve(null);
+    reader.readAsDataURL(blob);
+  });
 }

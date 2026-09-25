@@ -44,13 +44,14 @@ function health(req, res) {
   const groqKey = Boolean(process.env.GROQ_API_KEY && !process.env.GROQ_API_KEY.includes('your_'));
   const openAiKey = Boolean(process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.includes('sk-'));
 
-  const provider = process.env.LLM_PROVIDER || 'groq';
+  const provider = process.env.LLM_PROVIDER || 'auto';
   let active = 'builtin-engine';
-  if (provider === 'groq' && groqKey) active = 'groq (ultra-fast)';
-  else if (provider === 'gemini' && geminiKey) active = 'gemini (free)';
-  else if (provider === 'openai' && openAiKey) active = 'openai';
+  if (groqKey && geminiKey) active = 'groq + gemini vision';
   else if (groqKey) active = 'groq (ultra-fast)';
-  else if (geminiKey) active = 'gemini (free)';
+  else if (geminiKey) active = 'gemini vision (free)';
+  else if (openAiKey) active = 'openai';
+  else if (provider === 'groq' && groqKey) active = 'groq (ultra-fast)';
+  else if (provider === 'gemini' && geminiKey) active = 'gemini (free)';
 
   res.status(200).json({
     status: 'online',

@@ -104,7 +104,71 @@
     }
 
     /**
-     * Visual confirmation styling
+     * Safely types/fills the written answer into a text input, textarea, or contenteditable
+     * Fully compatible with Google Forms, React, Vue, Angular, and standard HTML
+     * @param {Object} question - Question object containing inputElement
+     * @param {string} textValue - Text answer to insert
+     */
+    fillTextInput(question, textValue) {
+      if (!question || !question.inputElement) {
+        return { success: false, error: 'Input element is missing.' };
+      }
+
+      const input = question.inputElement;
+
+      // Safeguard: Never interact with submit button
+      if (this.isSubmitElement(input)) {
+        return { success: false, error: 'Prevented action: Element looks like a submit button.' };
+      }
+
+      try {
+        // 1. Scroll gently into view
+        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        // 2. Focus the input
+        if (typeof input.focus === 'function') {
+          input.focus();
+        }
+
+        const valueToWrite = String(textValue || '').trim();
+
+        // 3. For contenteditable div
+        if (input.getAttribute('contenteditable') === 'true') {
+          input.innerText = valueToWrite;
+          input.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+          input.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
+        } else {
+          // 4. For standard input & textarea (including Google Forms React/Closure compiler)
+          const proto = input.tagName.toLowerCase() === 'textarea'
+            ? window.HTMLTextAreaElement.prototype
+            : window.HTMLInputElement.prototype;
+
+          const setter = Object.getOwnPropertyDescriptor(proto, 'value')?.set;
+          if (setter) {
+            setter.call(input, valueToWrite);
+          } else {
+            input.value = valueToWrite;
+          }
+
+          // Dispatch input events so forms validate and update state
+          input.dispatchEvent(new Event('keydown', { bubbles: true, cancelable: true }));
+          input.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+          input.dispatchEvent(new Event('keyup', { bubbles: true, cancelable: true }));
+          input.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
+          input.dispatchEvent(new Event('blur', { bubbles: true, cancelable: true }));
+        }
+
+        // 5. Visual confirmation highlight
+        this.highlightInput(input);
+
+        return { success: true };
+      } catch (err) {
+        return { success: false, error: `Writing answer failed: ${err.message}` };
+      }
+    }
+
+    /**
+     * Visual confirmation styling for selected radio/checkbox options
      */
     highlightOption(el) {
       const container = el.closest(
@@ -114,6 +178,17 @@
       container.style.transition = 'all 0.3s ease';
       container.style.boxShadow = '0 0 0 2px #10b981, 0 0 12px rgba(16, 185, 129, 0.4)';
       container.style.borderRadius = '6px';
+    }
+
+    /**
+     * Visual confirmation styling for filled text inputs
+     */
+    highlightInput(el) {
+      el.style.transition = 'all 0.3s ease';
+      el.style.borderColor = '#10b981';
+      el.style.boxShadow = '0 0 0 2px rgba(16, 185, 129, 0.4), 0 0 10px rgba(16, 185, 129, 0.2)';
+      el.style.backgroundColor = 'rgba(16, 185, 129, 0.05)';
+      el.style.borderRadius = '4px';
     }
 
     /**
